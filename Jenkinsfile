@@ -46,7 +46,7 @@ podTemplate(label: 'mypod',
                 set +e
                 NAMESPACE=`cat /var/run/configs/registry-config/namespace`
                 REGISTRY=`cat /var/run/configs/registry-config/registry`
-                CHARTNAME=`hello-container`
+                CHARTNAME=`helm list --deployed --short hello-container`
 
                 helm list \${CHARTNAME}
 
