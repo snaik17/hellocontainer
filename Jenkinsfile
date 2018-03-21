@@ -20,7 +20,7 @@ podTemplate(label: 'mypod',
                 NAMESPACE=`cat /var/run/configs/registry-config/namespace`
                 REGISTRY=`cat /var/run/configs/registry-config/registry`
 
-                docker build -t \${REGISTRY}/\${NAMESPACE}/bluecompute-ce-web:${env.BUILD_NUMBER} .
+                docker build -t \${REGISTRY}/\${NAMESPACE}/hello-container:${env.BUILD_NUMBER} .
                 """
             }
             stage('Push Docker Image to Registry') {
@@ -35,7 +35,7 @@ podTemplate(label: 'mypod',
                 docker login -u=\${DOCKER_USER} -p=\${DOCKER_PASSWORD} \${REGISTRY}
                 set -x
 
-                docker push \${REGISTRY}/\${NAMESPACE}/bluecompute-ce-web:${env.BUILD_NUMBER}
+                docker push \${REGISTRY}/\${NAMESPACE}/hello-container:${env.BUILD_NUMBER}
                 """
             }
         }
@@ -57,7 +57,7 @@ podTemplate(label: 'mypod',
                 fi
 
                 # Update Release 
-                helm upgrade hello-container ./hello-container-chart/ --set image=\${REGISTRY}/\${NAMESPACE}/bluecompute-ce-web:${env.BUILD_NUMBER}
+                helm upgrade hello-container ./hello-container-chart/ --set image=\${REGISTRY}/\${NAMESPACE}/hello-container:${env.BUILD_NUMBER}
                 """
             }
         }
