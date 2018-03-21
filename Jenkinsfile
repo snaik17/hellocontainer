@@ -57,7 +57,7 @@ podTemplate(label: 'mypod',
                 fi
 
                 # Update Release 
-                helm upgrade hello-container ./hellocontainer-chart/ --set image=\${REGISTRY}/\${NAMESPACE}/hello-container --set tag=${env.BUILD_NUMBER}
+                helm upgrade hello-container ./hellocontainer-chart/ --set image.repository=\${REGISTRY}/\${NAMESPACE}/hello-container --set image.tag=${env.BUILD_NUMBER}
                 """
             }
         }
