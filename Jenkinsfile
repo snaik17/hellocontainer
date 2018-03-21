@@ -1,66 +1,67 @@
-def label = "worker-${UUID.randomUUID().toString()}"
+podTemplate(label: 'mypod',
+    volumes: [
+        hostPathVolume(hostPath: '/etc/docker/certs.d', mountPath: '/etc/docker/certs.d'),
+        hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
+        secretVolume(secretName: 'registry-account', mountPath: '/var/run/secrets/registry-account'),
+        configMapVolume(configMapName: 'registry-config', mountPath: '/var/run/configs/registry-config')
+    ],
+    containers: [
+        containerTemplate(name: 'docker', image: 'wizplaycluster.icp:8500/default/docker:latest', command: 'cat', ttyEnabled: true),
+        containerTemplate(name: 'kubectl', image: 'wizplaycluster.icp:8500/default/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
+        containerTemplate(name: 'helm', image: 'wizplaycluster.icp:8500/default/k8s-helm:latest', command: 'cat', ttyEnabled: true)
+  ]) {
 
-podTemplate(label: label, containers: [
-  containerTemplate(name: 'gradle', image: 'gradle:4.5.1-jdk9', command: 'cat', ttyEnabled: true),
-  containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
-  containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
-  containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:latest', command: 'cat', ttyEnabled: true)
-],
-volumes: [
-  hostPathVolume(mountPath: '/home/gradle/.gradle', hostPath: '/tmp/jenkins/.gradle'),
-  hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
-]) {
-  node(label) {
-    def myRepo = checkout scm
-    def gitCommit = myRepo.GIT_COMMIT
-    def gitBranch = myRepo.GIT_BRANCH
-    def shortGitCommit = "${gitCommit[0..10]}"
-    def previousGitCommit = sh(script: "git rev-parse ${gitCommit}~", returnStdout: true)
- 
-    stage('Test') {
-      try {
-        container('gradle') {
-          sh """
-            pwd
-            echo "GIT_BRANCH=${gitBranch}" >> /etc/environment
-            echo "GIT_COMMIT=${gitCommit}" >> /etc/environment
-            gradle test
-            """
+    node('mypod') {
+        checkout scm
+        container('docker') {
+            stage('Build Docker Image') {
+                sh """
+                #!/bin/bash
+                NAMESPACE=`cat /var/run/configs/registry-config/namespace`
+                REGISTRY=`cat /var/run/configs/registry-config/registry`
+
+                docker build -t \${REGISTRY}/\${NAMESPACE}/bluecompute-ce-web:${env.BUILD_NUMBER} .
+                """
+            }
+            stage('Push Docker Image to Registry') {
+                sh """
+                #!/bin/bash
+                NAMESPACE=`cat /var/run/configs/registry-config/namespace`
+                REGISTRY=`cat /var/run/configs/registry-config/registry`
+
+                set +x
+                DOCKER_USER=`cat /var/run/secrets/registry-account/username`
+                DOCKER_PASSWORD=`cat /var/run/secrets/registry-account/password`
+                docker login -u=\${DOCKER_USER} -p=\${DOCKER_PASSWORD} \${REGISTRY}
+                set -x
+
+                docker push \${REGISTRY}/\${NAMESPACE}/bluecompute-ce-web:${env.BUILD_NUMBER}
+                """
+            }
         }
-      }
-      catch (exc) {
-        println "Failed to test - ${currentBuild.fullDisplayName}"
-        throw(exc)
-      }
-    }
-    stage('Build') {
-      container('gradle') {
-        sh "gradle build"
-      }
-    }
-    stage('Create Docker images') {
-      container('docker') {
-        withCredentials([[$class: 'UsernamePasswordMultiBinding',
-          credentialsId: 'dockerhub',
-          usernameVariable: 'DOCKER_HUB_USER',
-          passwordVariable: 'DOCKER_HUB_PASSWORD']]) {
-          sh """
-            docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
-            docker build -t namespace/my-image:${gitCommit} .
-            docker push namespace/my-image:${gitCommit}
-            """
+        container('helm') {
+            stage('Deploy new helm release') {
+                sh """
+                #!/bin/bash
+                set +e
+                NAMESPACE=`cat /var/run/configs/registry-config/namespace`
+                REGISTRY=`cat /var/run/configs/registry-config/registry`
+                CHARTNAME=`hello-container`
+
+                helm list \${CHARTNAME}
+
+                if [ \${?} -ne "0" ]; then
+                    # No chart release to update
+                    echo 'No chart release to update'
+                    exit 1
+                fi
+
+                # Update Release 
+                helm upgrade hello-container ./hello-container-chart/ --set image=\${REGISTRY}/\${NAMESPACE}/bluecompute-ce-web:${env.BUILD_NUMBER}
+                """
+            }
         }
-      }
+
+
     }
-    stage('Run kubectl') {
-      container('kubectl') {
-        sh "kubectl get pods"
-      }
-    }
-    stage('Run helm') {
-      container('helm') {
-        sh "helm list"
-      }
-    }
-  }
 }

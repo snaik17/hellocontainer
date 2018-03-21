@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: hello-app
 spec:
-  replicas: 2 
+  replicas: {{ .Values.replicaCount }} 
   selector:
     matchLabels:
       app: hello-app
@@ -19,7 +19,8 @@ spec:
     spec:
       containers:
       - name: hello-app
-        image: webapp:6
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" 
+        #image: wizplaycluster.icp:8500/default/hello-container:latest 
         # for local development against minikube registry
         #imagePullPolicy: Never        
         ports:
