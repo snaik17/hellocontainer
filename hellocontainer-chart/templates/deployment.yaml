@@ -1,6 +1,8 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
+  annotations:
+    prometheus.io/scrape: 'true'  
   name: hello-app
 spec:
   replicas: {{ .Values.replicaCount }} 
