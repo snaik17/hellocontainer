@@ -19,7 +19,7 @@ var PORT = 80;
 
 var app = express();
 app.get('/', function (req, res) {
-  res.send('From laptop to IBM Cloud Private! ');
+  res.send('From laptop to IBM Cloud Private ');
 });
 
 app.listen(PORT)
