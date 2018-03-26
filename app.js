@@ -19,7 +19,7 @@ var PORT = 80;
 
 var app = express();
 app.get('/', function (req, res) {
-  res.send(' Hello, Welcome to IBM Cloud Private and Helm Charts!  ');
+  res.send('From laptop to IBM Cloud Private! ');
 });
 
 app.listen(PORT)
