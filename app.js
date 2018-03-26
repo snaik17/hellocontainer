@@ -19,7 +19,7 @@ var PORT = 80;
 
 var app = express();
 app.get('/', function (req, res) {
-  res.send(' Hello, I am Running GIT Continuous delivery pipeline to deploy this app using helm and kubernetes! ');
+  res.send(' Hello, Welcome to IBM Cloud Private and Helm Charts!  ');
 });
 
 app.listen(PORT)
