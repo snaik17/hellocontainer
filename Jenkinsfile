@@ -24,7 +24,10 @@ podTemplate(label: 'buildpod',
                 """
             } 
             stage('Test image') {
-              sh 'echo "Tests passed"'
+                sh """
+                #!/bin/bash
+                echo "Tests passed"
+                """
              }
             
             stage('Push Docker Image to Registry') {
