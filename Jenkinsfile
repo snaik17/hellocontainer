@@ -27,6 +27,7 @@ podTemplate(label: 'buildpod',
                 sh """
                 #!/bin/bash
                 echo "Tests passed"
+                node --version
                 """
              }
             
