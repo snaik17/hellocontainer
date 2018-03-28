@@ -22,12 +22,11 @@ podTemplate(label: 'buildpod',
 
                 docker build -t \${REGISTRY}/\${NAMESPACE}/hello-container:${env.BUILD_NUMBER} .
                 """
-            }
+            } 
             stage('Test image') {
-             app.inside {
               sh 'echo "Tests passed"'
              }
-            }
+            
             stage('Push Docker Image to Registry') {
                 sh """
                 #!/bin/bash
