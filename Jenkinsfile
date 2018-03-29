@@ -45,7 +45,7 @@ podTemplate(label: 'buildpod',
                 #!/bin/bash
                 NAMESPACE=`cat /var/run/configs/registry-config/namespace`
                 REGISTRY=`cat /var/run/configs/registry-config/registry`
-                container-structure-test  -test.v   -image \${REGISTRY}/\${NAMESPACE}/hello-container:${env.BUILD_NUMBER} /var/tmp/debian_test2.yaml
+                container-structure-test  -test.v   -image \${REGISTRY}/\${NAMESPACE}/hello-container:${env.BUILD_NUMBER} /var/tmp/hello-container-test.yaml
                 """
             }
         }

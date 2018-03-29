@@ -1,0 +1,21 @@
+schemaVersion: '2.0.0' # Make sure to test the latest schema version
+commandTests:
+- name: 'path'
+  command: 'sh'
+  args: ['-c', 'echo $PATH']
+  expectedOutput: ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin']
+
+
+fileExistenceTests:
+- name: 'Root'
+  isDirectory: true
+  path: '/'
+  shouldExist: true
+
+fileContentTests:
+- name: 'app.js'
+  expectedContents: ['PORT = 80']
+  path: '/app/app.js'
+
+
+
