@@ -7,9 +7,9 @@ commandTests:
   expectedOutput: ['v6.12.0']
 
 fileExistenceTests:
-- name: 'Root'
+- name: 'Modules'
   isDirectory: true
-  path: '/'
+  path: '/app/node_modules'
   shouldExist: true
 
 fileContentTests:
