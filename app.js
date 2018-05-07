@@ -22,5 +22,14 @@ app.get('/', function (req, res) {
   res.send('From laptop to IBM Cloud Private with CI/CD pipeline with Jenkins and Helm with container test on apr 22 ');
 });
 
+
+app.get('/first', function (req, res) {
+  res.send('Accessing first uri ');
+});
+
+app.get('/second', function (req, res) {
+  res.send('Accessing second uri ');
+});
+
 app.listen(PORT)
 console.log(' Application Running on port' + PORT);
