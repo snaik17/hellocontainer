@@ -16,11 +16,11 @@ spec:
       - path: /first
         backend:
           serviceName: hello-app
-          servicePort: 80
+          servicePort: 80 
       - path: /second
         backend:
           serviceName: hello-app
-          servicePort: 80
+          servicePort: 80 
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
@@ -59,7 +59,7 @@ metadata:
   labels:
     app: hello-service
 spec:
-  type: NodePort 
+  type: ClusterIP 
   ports:
     # the port that this service should serve on
     - port: 80

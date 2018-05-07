@@ -8,12 +8,12 @@ image:
   pullPolicy: Always
 service:
   name: hello-service 
-  type: ClusterIP 
+  type: NodePort 
   externalPort: 80
   internalPort: 8000
   nodeport:
     port: 
-ingress:
+ingress: 
   hostname:
   path: /
 resources:
